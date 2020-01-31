@@ -3,16 +3,37 @@ import axios from "axios";
 
 import Bubbles from "./Bubbles";
 import ColorList from "./ColorList";
+import { useDispatch, useSelector } from "react-redux";
+import { Fetch } from "../actions/ApiCalls";
+import Loader from "react-loader-spinner";
 
 const BubblePage = () => {
-  const [colorList, setColorList] = useState([]);
-  // fetch your colors data from the server when the component mounts
+  const dispatch = useDispatch();
+  // const [colorList, setColorList] = useState([]);
+  const colorList = useSelector(state => state.colorList);
+  const isloading = useSelector(state => state.isloading);
+  useEffect(() => {
+    dispatch(Fetch());
+  }, []);
   // set that data to the colorList state property
 
   return (
     <>
-      <ColorList colors={colorList} updateColors={setColorList} />
-      <Bubbles colors={colorList} />
+      {isloading && (
+        <Loader
+          type='BallTriangle'
+          color='#00BFFF'
+          height={100}
+          width={100}
+          timeout={3000} //3 secs
+        />
+      )}
+      {colorList && !isloading && (
+        <>
+          <ColorList colors={colorList} dispatch={dispatch} />
+          <Bubbles colors={colorList} />
+        </>
+      )}
     </>
   );
 };

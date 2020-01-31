@@ -13,8 +13,8 @@ const Bubbles = ({ colors }) => {
   }, [colors]);
 
   return (
-    <div className="bubble-wrap">
-      <p>bubbles</p>
+    <div className='bubble-wrap'>
+      <h2>Bubbles</h2>
       <Svg width={400} height={400}>
         <Pack
           data={{
@@ -24,8 +24,7 @@ const Bubbles = ({ colors }) => {
           size={[400, 400]}
           includeRoot={false}
           nodeEnter={d => ({ ...d, r: 0 })}
-          animate
-        >
+          animate>
           {nodes =>
             nodes
               .map(({ x, y, r, key }, i) => {

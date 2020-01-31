@@ -97,3 +97,26 @@ form {
     margin-top: 16px;
   }
 }
+
+.login input {
+  width: 18%;
+  height: 3vh;
+}
+.login {
+  background-color: whitesmoke;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.red {
+  display: inline;
+  color: red;
+}
+
+.formbody {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  align-items: center;
+}
