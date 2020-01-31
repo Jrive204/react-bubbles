@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
-import { EDITING_STATE, EDITING_STATE_FALSE } from "../reducers/reducer";
-import { Edit, Destroy } from "../actions/ApiCalls";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  EDITING_STATE,
+  EDITING_STATE_FALSE,
+  ISLOADING_STATE,
+  ISLOADING_STATE_FALSE
+} from "../reducers/reducer";
+import { Edit, Destroy, Fetch } from "../actions/ApiCalls";
 import Loader from "react-loader-spinner";
+import { axiosWithAuth } from "../utils/axioswithauth";
 const uuidv4 = require("uuid/v4");
 
 const initialColor = {
@@ -12,9 +18,11 @@ const initialColor = {
   id: uuidv4()
 };
 
-const ColorList = ({ colors, dispatch }) => {
+const ColorList = ({ colors, updateColors }) => {
   console.log(colors, "Colors");
+  const dispatch = useDispatch();
 
+  // const colors = useSelector(state => state.colorList);
   const editing = useSelector(state => state.editing);
   const isloading = useSelector(state => state.isloading);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -27,12 +35,35 @@ const ColorList = ({ colors, dispatch }) => {
 
   const saveEdit = e => {
     e.preventDefault();
-    dispatch(Edit(colorToEdit, colorToEdit.id));
+    axiosWithAuth()
+      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
+      .then(() => {
+        axiosWithAuth()
+          .get(`http://localhost:5000/api/colors`)
+          .then(res => updateColors(res.data))
+          .catch(err => console.log(err));
+        dispatch({ type: EDITING_STATE_FALSE });
+      })
+      .catch(err => {
+        console.log("Error", err);
+      });
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
-    dispatch(Destroy(color));
+    axiosWithAuth()
+      .delete(`/api/colors/${color}`)
+      .then(() => {
+        alert("Color Deleted");
+        axiosWithAuth()
+          .get("/api/colors")
+          .then(res => updateColors(res.data))
+          .catch(err => console.log(err));
+        dispatch({ type: EDITING_STATE_FALSE });
+      })
+      .catch(err => {
+        console.log("error", err);
+      });
   };
 
   useEffect(() => {
@@ -45,7 +76,7 @@ const ColorList = ({ colors, dispatch }) => {
     <div className='colors-wrap'>
       <h4>colors</h4>
       <ul>
-        {isloading && (
+        {isloading ? (
           <Loader
             type='BallTriangle'
             color='#00BFFF'
@@ -53,27 +84,28 @@ const ColorList = ({ colors, dispatch }) => {
             width={100}
             timeout={3000} //3 secs
           />
+        ) : (
+          colors.map(color => (
+            <li key={color.color} onClick={() => editColor(color)}>
+              <span>
+                {console.log(editing, "editing")}
+                <span
+                  className='delete'
+                  onClick={e => {
+                    e.stopPropagation();
+                    deleteColor(color.id);
+                  }}>
+                  x
+                </span>{" "}
+                {color.color}
+              </span>
+              <div
+                className='color-box'
+                style={{ backgroundColor: color.code.hex }}
+              />
+            </li>
+          ))
         )}
-        {colors.map(color => (
-          <li key={color.color} onClick={() => editColor(color)}>
-            <span>
-              {console.log(editing, "editing")}
-              <span
-                className='delete'
-                onClick={e => {
-                  e.stopPropagation();
-                  deleteColor(color.id);
-                }}>
-                x
-              </span>{" "}
-              {color.color}
-            </span>
-            <div
-              className='color-box'
-              style={{ backgroundColor: color.code.hex }}
-            />
-          </li>
-        ))}
       </ul>
       {editing && (
         <form onSubmit={saveEdit}>

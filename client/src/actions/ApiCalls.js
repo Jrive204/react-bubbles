@@ -7,9 +7,9 @@ export const Fetch = () => dispatch => {
   axiosWithAuth()
     .get("/api/colors")
     .then(
-      res =>
+      async res =>
         console.log(res, "res data") &
-        dispatch({ type: DATA_SUCCESS, payload: res.data })
+        (await dispatch({ type: DATA_SUCCESS, payload: res.data }))
     )
     .catch(
       err =>
@@ -24,9 +24,7 @@ export const Send = data => dispatch => {
     .post(`/api/colors/`, data)
     .then(res => {
       console.log(res, "data ");
-      setTimeout(() => {
-        dispatch({ type: DATA_SUCCESS, payload: res.data });
-      }, 2500);
+      dispatch({ type: DATA_SUCCESS, payload: res.data });
     })
     .catch(err => {
       dispatch({ type: DATA_FAILURE, payload: err.response });
@@ -39,9 +37,7 @@ export const Edit = (data, id) => dispatch => {
     .put(`/api/colors/${id}`, data)
     .then(res => {
       console.log(res, "data ");
-      setTimeout(() => {
-        dispatch({ type: DATA_SUCCESS, payload: res.data });
-      }, 2500);
+      dispatch({ type: DATA_SUCCESS, payload: res.data });
     })
     .catch(err => {
       dispatch({ type: DATA_FAILURE, payload: err.response });
@@ -54,9 +50,7 @@ export const Destroy = id => dispatch => {
     .delete(`/api/colors/${id}`)
     .then(res => {
       console.log(res, "data ");
-      setTimeout(() => {
-        dispatch({ type: DATA_SUCCESS, payload: res.data });
-      }, 2500);
+      dispatch({ type: DATA_SUCCESS, payload: res.data });
     })
     .catch(err => {
       dispatch({ type: DATA_FAILURE, payload: err.response });

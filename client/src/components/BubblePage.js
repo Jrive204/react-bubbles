@@ -6,15 +6,25 @@ import ColorList from "./ColorList";
 import { useDispatch, useSelector } from "react-redux";
 import { Fetch } from "../actions/ApiCalls";
 import Loader from "react-loader-spinner";
+import { axiosWithAuth } from "../utils/axioswithauth";
 
 const BubblePage = () => {
-  const dispatch = useDispatch();
-  // const [colorList, setColorList] = useState([]);
-  const colorList = useSelector(state => state.colorList);
+  // const dispatch = useDispatch();
+  const [colorList, setColorList] = useState([]);
+  // const colorList = useSelector(state => state.colorList);
   const isloading = useSelector(state => state.isloading);
   useEffect(() => {
-    dispatch(Fetch());
+    axiosWithAuth()
+      .get("/api/colors")
+      .then(response => {
+        console.log(response);
+        setColorList(response.data);
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }, []);
+
   // set that data to the colorList state property
 
   return (
@@ -30,7 +40,7 @@ const BubblePage = () => {
       )}
       {colorList && !isloading && (
         <>
-          <ColorList colors={colorList} dispatch={dispatch} />
+          <ColorList colors={colorList} updateColors={setColorList} />
           <Bubbles colors={colorList} />
         </>
       )}
