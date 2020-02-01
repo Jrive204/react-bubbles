@@ -11,7 +11,7 @@ const uuidv4 = require("uuid/v4");
 const initialState = {
   isloading: false,
   editing: false,
-  colorList: [] ?? [],
+  colorList: [],
   data: {
     color: "",
     code: {
@@ -19,27 +19,27 @@ const initialState = {
     },
     id: uuidv4()
   },
-  error: {}
+  error: ""
 };
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case DATA_START:
       return {
-        ...state
-        // isloading: true
+        ...state,
+        isloading: true
       };
     case DATA_SUCCESS:
       return {
         ...state,
+        isloading: false,
         colorList: action.payload
-        // isloading: false
       };
     case DATA_FAILURE:
       return {
         ...state,
+        isloading: false,
         colorList: action.payload
-        // isloading: false
       };
 
     case EDITING_STATE:
@@ -50,12 +50,12 @@ export default (state = initialState, action) => {
     case EDITING_STATE_FALSE:
       return {
         ...state,
-        isloading: false
+        editing: false
       };
     case ISLOADING_STATE:
       return {
         ...state,
-        editing: true
+        isloading: true
       };
     case ISLOADING_STATE_FALSE:
       return {

@@ -7,7 +7,7 @@ import {
   ISLOADING_STATE,
   ISLOADING_STATE_FALSE
 } from "../reducers/reducer";
-import { Edit, Destroy, Fetch } from "../actions/ApiCalls";
+import { Edit, Destroy, Fetch, Send } from "../actions/ApiCalls";
 import Loader from "react-loader-spinner";
 import { axiosWithAuth } from "../utils/axioswithauth";
 const uuidv4 = require("uuid/v4");
@@ -18,15 +18,25 @@ const initialColor = {
   id: uuidv4()
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({}) => {
   console.log(colors, "Colors");
-  const dispatch = useDispatch();
 
-  // const colors = useSelector(state => state.colorList);
+  const dispatch = useDispatch();
+  const colors = useSelector(state => state.colorList);
   const editing = useSelector(state => state.editing);
   const isloading = useSelector(state => state.isloading);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [colorToAdd, setColorToAdd] = useState({
+    color: "",
+    code: { hex: "" },
+    id: uuidv4()
+  });
+
   // const [colorlist, setColorList] = useState(colors);
+
+  useEffect(() => {
+    dispatch(Fetch());
+  }, []);
 
   const editColor = color => {
     dispatch({ type: EDITING_STATE });
@@ -35,56 +45,29 @@ const ColorList = ({ colors, updateColors }) => {
 
   const saveEdit = e => {
     e.preventDefault();
-    axiosWithAuth()
-      .put(`/api/colors/${colorToEdit.id}`, colorToEdit)
-      .then(() => {
-        axiosWithAuth()
-          .get(`http://localhost:5000/api/colors`)
-          .then(res => updateColors(res.data))
-          .catch(err => console.log(err));
-        dispatch({ type: EDITING_STATE_FALSE });
-      })
-      .catch(err => {
-        console.log("Error", err);
-      });
+
+    dispatch(Edit(colorToEdit, colorToEdit.id));
+    dispatch({ type: EDITING_STATE_FALSE });
   };
 
   const deleteColor = color => {
-    // make a delete request to delete this color
-    axiosWithAuth()
-      .delete(`/api/colors/${color}`)
-      .then(() => {
-        alert("Color Deleted");
-        axiosWithAuth()
-          .get("/api/colors")
-          .then(res => updateColors(res.data))
-          .catch(err => console.log(err));
-        dispatch({ type: EDITING_STATE_FALSE });
-      })
-      .catch(err => {
-        console.log("error", err);
-      });
+    dispatch(Destroy(color));
+    dispatch({ type: EDITING_STATE_FALSE });
   };
 
-  useEffect(() => {
-    if (!colors) {
-      return [];
-    }
-  }, [colors]);
+  const addColor = e => {
+    e.preventDefault();
+
+    dispatch(Send(colorToAdd));
+    dispatch({ type: EDITING_STATE_FALSE });
+  };
 
   return (
     <div className='colors-wrap'>
       <h4>colors</h4>
       <ul>
-        {isloading ? (
-          <Loader
-            type='BallTriangle'
-            color='#00BFFF'
-            height={100}
-            width={100}
-            timeout={3000} //3 secs
-          />
-        ) : (
+        {colors &&
+          !isloading &&
           colors.map(color => (
             <li key={color.color} onClick={() => editColor(color)}>
               <span>
@@ -96,7 +79,7 @@ const ColorList = ({ colors, updateColors }) => {
                     deleteColor(color.id);
                   }}>
                   x
-                </span>{" "}
+                </span>
                 {color.color}
               </span>
               <div
@@ -104,8 +87,7 @@ const ColorList = ({ colors, updateColors }) => {
                 style={{ backgroundColor: color.code.hex }}
               />
             </li>
-          ))
-        )}
+          ))}
       </ul>
       {editing && (
         <form onSubmit={saveEdit}>
@@ -141,7 +123,34 @@ const ColorList = ({ colors, updateColors }) => {
         </form>
       )}
       <div className='spacer' />
-      {/* stretch - build another form here to add a color */}
+      <form style={{ position: "absolute", top: "550px" }} onSubmit={addColor}>
+        <legend>Add color</legend>
+        <label>
+          color name:
+          <input
+            onChange={e =>
+              setColorToAdd({ ...colorToAdd, color: e.target.value })
+            }
+            value={colorToAdd.color}
+          />
+          {console.log(colorToAdd, "COLORTOEDITFORM")}
+        </label>
+        <label>
+          hex code:
+          <input
+            onChange={e =>
+              setColorToAdd({
+                ...colorToAdd,
+                code: { hex: e.target.value }
+              })
+            }
+            value={colorToAdd.code.hex}
+          />
+        </label>
+        <div className='button-row'>
+          <button type='submit'>save</button>
+        </div>
+      </form>
     </div>
   );
 };
