@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Pack } from "@potion/layout";
 import { Svg, Circle } from "@potion/element";
+import { useSelector } from "react-redux";
 
-const Bubbles = ({ colors }) => {
+const Bubbles = ({}) => {
+  const colors = useSelector(state => state.colorList);
+  const isloading = useSelector(state => state.isloading);
   const [bubbleData, setBubbleData] = useState([]);
   useEffect(() => {
     const generateBubbleData = colors.map((_, i) => ({

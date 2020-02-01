@@ -9,26 +9,13 @@ import Loader from "react-loader-spinner";
 import { axiosWithAuth } from "../utils/axioswithauth";
 
 const BubblePage = () => {
-  // const dispatch = useDispatch();
-  const [colorList, setColorList] = useState([]);
-  // const colorList = useSelector(state => state.colorList);
+  const dispatch = useDispatch();
+  const colorList = useSelector(state => state.colorList);
   const isloading = useSelector(state => state.isloading);
-  useEffect(() => {
-    axiosWithAuth()
-      .get("/api/colors")
-      .then(response => {
-        console.log(response);
-        setColorList(response.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
-
-  // set that data to the colorList state property
 
   return (
     <>
+      <ColorList />
       {isloading && (
         <Loader
           type='BallTriangle'
@@ -38,12 +25,7 @@ const BubblePage = () => {
           timeout={3000} //3 secs
         />
       )}
-      {colorList && !isloading && (
-        <>
-          <ColorList colors={colorList} updateColors={setColorList} />
-          <Bubbles colors={colorList} />
-        </>
-      )}
+      {colorList && !isloading && <Bubbles />}
     </>
   );
 };

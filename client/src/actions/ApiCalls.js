@@ -1,4 +1,9 @@
-import { DATA_START, DATA_FAILURE, DATA_SUCCESS } from "../reducers/reducer";
+import {
+  DATA_START,
+  DATA_FAILURE,
+  DATA_SUCCESS,
+  EDITING_STATE_FALSE
+} from "../reducers/reducer";
 import { axiosWithAuth } from "../utils/axioswithauth";
 
 export const Fetch = () => dispatch => {
@@ -7,10 +12,11 @@ export const Fetch = () => dispatch => {
   axiosWithAuth()
     .get("/api/colors")
     .then(
-      async res =>
+      res =>
         console.log(res, "res data") &
-        (await dispatch({ type: DATA_SUCCESS, payload: res.data }))
+        dispatch({ type: DATA_SUCCESS, payload: res.data })
     )
+
     .catch(
       err =>
         console.log(err, "ERROR") &
@@ -21,10 +27,11 @@ export const Fetch = () => dispatch => {
 export const Send = data => dispatch => {
   dispatch({ type: DATA_START });
   axiosWithAuth()
-    .post(`/api/colors/`, data)
+    .post(`/api/colors`, data)
     .then(res => {
       console.log(res, "data ");
-      dispatch({ type: DATA_SUCCESS, payload: res.data });
+      dispatch({ type: DATA_SUCCESS });
+      dispatch(Fetch());
     })
     .catch(err => {
       dispatch({ type: DATA_FAILURE, payload: err.response });
@@ -37,7 +44,8 @@ export const Edit = (data, id) => dispatch => {
     .put(`/api/colors/${id}`, data)
     .then(res => {
       console.log(res, "data ");
-      dispatch({ type: DATA_SUCCESS, payload: res.data });
+      dispatch({ type: DATA_SUCCESS });
+      dispatch(Fetch());
     })
     .catch(err => {
       dispatch({ type: DATA_FAILURE, payload: err.response });
@@ -50,7 +58,8 @@ export const Destroy = id => dispatch => {
     .delete(`/api/colors/${id}`)
     .then(res => {
       console.log(res, "data ");
-      dispatch({ type: DATA_SUCCESS, payload: res.data });
+      dispatch({ type: DATA_SUCCESS });
+      dispatch(Fetch());
     })
     .catch(err => {
       dispatch({ type: DATA_FAILURE, payload: err.response });
